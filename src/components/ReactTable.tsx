@@ -46,6 +46,6 @@ export function ReactTable(props:{data:any; eventoBorrar:any}) {
     
 ];
 
-    return (<DataTable className='tablaReact' columns={columns} data={props.data} pagination selectableRows />)
+    return (<DataTable className='tablaReact' columns={columns} data={props.data} pagination />)
 
 }
