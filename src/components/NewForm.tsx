@@ -1,22 +1,97 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField } from "@mui/material";
+import { Alert, Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
+import { guardarDatos, obtenerDatos } from "../services/db";
 
 
-export default function NewForm(props: { visible: boolean; setParentVisible: any; type: string }) {
+export default function NewForm(props: { visible: boolean; setParentVisible: any; type: string; updateTableEvent:any }) {
 
     const [openConfirm, setopenConfirm] = useState<boolean>(props.visible)
+    const [superMercados, setSuperMercados] = useState<any>([])
+    const [producto, setProducto] = useState<any>([])
+    const [productoValue, setProductoValue] = useState<string>('')
+    const [superValue, setSuperValue] = useState<string>('')
+    const [precio, setPrecio] = useState<number>(0)
+    const [precioUnidad, setPrecioUnidad] = useState<number>(0)
+    const [cantidad, setCantidad] = useState<string>('')
 
-    const saveFunction = () => {
-        console.log('Guardado')
+
+    const guardarProducto = async () => {
+
+        if (producto.filter((x: string) => x === productoValue).length > 0) {
+            alert("El producto ya existe")
+        }
+        else {
+            const result = await guardarDatos("Productos", [{ NOMBRE: productoValue }])
+
+            if (result) {
+                alert("Producto guardado correctamente")
+                setProductoValue('')
+                accionesCerrarDialog()
+            }
+            else {
+                alert("Se produjo un error")
+            }
+        }
+    }
+
+    const guardarSuper = async () => {
+
+        if (superMercados.filter((x: string) => x === superValue).length > 0) {
+            alert("El supermercado ya existe")
+        }
+        else {
+            const result = await guardarDatos("SuperMercados", [{ NOMBRE: superValue }])
+
+            if (result) {
+                alert("Supermercado guardado correctamente")
+                setSuperValue('')
+                accionesCerrarDialog()
+            }
+            else {
+                alert("Se produjo un error")
+            }
+        }
+    }
+
+
+    const guardarPrecio = async () => {
+
+        if (productoValue !== "" && superValue !== "") {
+            const datos = [{ PRODUCT_NAME: productoValue, SUPERMERCADO: superValue, PRECIO_UNIDAD: precioUnidad, PRECIO: precio, CANTIDAD: cantidad }]
+            const result = await guardarDatos("PreciosSuperMercados", datos)
+
+            if (result) {
+                alert("Precio guardado correctamente")
+                setSuperValue('')
+                setProductoValue('')
+                setCantidad('')
+                setPrecio(0)
+                setPrecioUnidad(0)
+                props.updateTableEvent()
+                accionesCerrarDialog()
+                
+            }
+            else {
+                alert("Se produjo un error")
+            }
+        }
+        else {
+            alert("Faltan campos obligatorios")
+        }
+
     }
 
     useEffect(() => {
+
+        obtenerValoresCombos();
+
         if (props.visible) {
-
             setopenConfirm(true)
-
         }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.visible])
+
 
 
     return (props.type === "Super" ?
@@ -27,6 +102,27 @@ export default function NewForm(props: { visible: boolean; setParentVisible: any
             dialogoNuevoPrecio()
 
     )
+
+    function obtenerValoresCombos() {
+
+        if (props.type === "Precio") {
+            obtenerDatos("SuperMercados", "NOMBRE", "NOMBRE").then((values: any) => {
+                const options = values ? values.data.map((value: any) => value.NOMBRE) : [];
+                setSuperMercados(options);
+            });
+
+            obtenerDatos("Productos", "NOMBRE", "NOMBRE").then((values: any) => {
+                const options = values ? values.data.map((value: any) => value.NOMBRE) : [];
+                setProducto(options);
+            });
+        }
+
+    }
+
+    function accionesCerrarDialog() {
+        setopenConfirm(false);
+        props.setParentVisible(false);
+    }
 
     function dialogoNuevoPrecio() {
         return <Dialog
@@ -40,35 +136,37 @@ export default function NewForm(props: { visible: boolean; setParentVisible: any
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                <Grid className="gridReact" container spacing={2}>
+                    <Grid className="gridReact" container spacing={2}>
                         <Grid item xs={12} md={12}>
-                            <TextField fullWidth label="Nombre" variant="outlined" />
+                            <Autocomplete disablePortal options={producto} renderInput={(params: any) => <TextField {...params} label="Producto" />} onChange={(event: any, values: any) => { setProductoValue(values) }} value={productoValue} />
                         </Grid>
                         <Grid item xs={12} md={12}>
-                            <TextField fullWidth label="Supermercado" variant="outlined" />
+                            <Autocomplete disablePortal options={superMercados} renderInput={(params: any) => <TextField {...params} label="Supermercado" />} onChange={(event: any, values: any) => { setSuperValue(values) }} value={superValue} />
                         </Grid>
                         <Grid item xs={12} md={12}>
-                            <TextField fullWidth label="Precio unidad" variant="outlined" />
+                            <TextField fullWidth label="Precio unidad" variant="outlined" type="number" value={precioUnidad !== 0 && precioUnidad} onChange={(v: any) => setPrecioUnidad(v.target.value)} />
                         </Grid>
                         <Grid item xs={12} md={12}>
-                            <TextField fullWidth label="Precio" variant="outlined" />
+                            <TextField fullWidth label="Precio" variant="outlined" type="number" value={precio !== 0 && precio} onChange={(v: any) => setPrecio(v.target.value)} />
                         </Grid>
-
+                        <Grid item xs={12} md={12}>
+                            <TextField fullWidth label="Cantidad (indicar gr/ml)" variant="outlined" type="text" value={cantidad} onChange={(v: any) => setCantidad(v.target.value)} />
+                        </Grid>
                     </Grid>
-                    
+
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
                 <Button
                     onClick={() => {
-                        setopenConfirm(false);
-                        props.setParentVisible(false);
+                        accionesCerrarDialog()
+
                     }}
                     color="primary"
                 >
                     Cancelar
                 </Button>
-                <Button onClick={saveFunction} color="primary" autoFocus>
+                <Button onClick={guardarPrecio} color="primary" autoFocus>
                     Aceptar
                 </Button>
             </DialogActions>
@@ -89,7 +187,7 @@ export default function NewForm(props: { visible: boolean; setParentVisible: any
                 <DialogContentText id="alert-dialog-description">
                     <Grid className="gridReact" container spacing={2}>
                         <Grid item xs={12} md={12}>
-                            <TextField fullWidth label="Nombre" variant="outlined" />
+                            <TextField fullWidth label="Nombre" variant="outlined" value={productoValue} onChange={(v) => setProductoValue(v.target.value)} />
                         </Grid>
                     </Grid>
                 </DialogContentText>
@@ -97,14 +195,14 @@ export default function NewForm(props: { visible: boolean; setParentVisible: any
             <DialogActions>
                 <Button
                     onClick={() => {
-                        setopenConfirm(false);
-                        props.setParentVisible(false);
+                        accionesCerrarDialog()
+                        setProductoValue('')
                     }}
                     color="primary"
                 >
                     Cancelar
                 </Button>
-                <Button onClick={saveFunction} color="primary" autoFocus>
+                <Button onClick={guardarProducto} color="primary" autoFocus>
                     Aceptar
                 </Button>
             </DialogActions>
@@ -123,9 +221,9 @@ export default function NewForm(props: { visible: boolean; setParentVisible: any
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                <Grid className="gridReact" container spacing={2}>
+                    <Grid className="gridReact" container spacing={2}>
                         <Grid item xs={12} md={12}>
-                            <TextField fullWidth label="Nombre" variant="outlined" />
+                            <TextField fullWidth label="Nombre" variant="outlined" value={superValue} onChange={(v) => setSuperValue(v.target.value)} />
                         </Grid>
                     </Grid>
                 </DialogContentText>
@@ -133,14 +231,14 @@ export default function NewForm(props: { visible: boolean; setParentVisible: any
             <DialogActions>
                 <Button
                     onClick={() => {
-                        setopenConfirm(false);
-                        props.setParentVisible(false);
+                        setProductoValue('')
+                        accionesCerrarDialog()
                     }}
                     color="primary"
                 >
                     Cancelar
                 </Button>
-                <Button onClick={saveFunction} color="primary" autoFocus>
+                <Button onClick={guardarSuper} color="primary" autoFocus>
                     Aceptar
                 </Button>
             </DialogActions>

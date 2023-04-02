@@ -4,7 +4,7 @@ import { HiPencilAlt } from "react-icons/hi";
 import NewForm from "./NewForm";
 
 
-export function NewButtons() {
+export function NewButtons(props:{updateTableEvent:any}) {
 
 const [showNewForm, setShowNewForm] = useState<boolean>(false)
 const [newFormType, setNewFormType] = useState<string>('')
@@ -30,7 +30,7 @@ const handlerClick = (type:string)=>{
 
         </Grid>
 
-        <NewForm visible={showNewForm} setParentVisible={setShowNewForm} type={newFormType}/>
+        <NewForm visible={showNewForm} setParentVisible={setShowNewForm} type={newFormType} updateTableEvent={props.updateTableEvent}/>
         </>
     )
 
