@@ -1,5 +1,5 @@
 import DataTable from 'react-data-table-component';
-import { HiPencil, HiOutlineTrash } from "react-icons/hi";
+import { HiOutlineTrash } from "react-icons/hi";
 
 
 
@@ -8,9 +8,7 @@ export function ReactTable(props:{data:any; eventoBorrar:any}) {
 
     const columns = [
     {
-      cell: (row: any) => <><HiPencil className='accion' size={'42px'} title="Editar precio" onClick={()=>{
-        console.log(row)
-      }}/><HiOutlineTrash className='accion' size={'42px'} title="Editar precio" onClick={()=>{
+      cell: (row: any) => <><HiOutlineTrash className='accion' size={'25px'} title="Editar precio" onClick={()=>{
         props.eventoBorrar(row.id)
       }}/></>,
        allowOverflow: true,
