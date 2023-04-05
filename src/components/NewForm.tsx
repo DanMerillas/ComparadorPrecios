@@ -144,11 +144,12 @@ export default function NewForm(props: { visible: boolean; setParentVisible: any
                             <Autocomplete disablePortal options={superMercados} renderInput={(params: any) => <TextField {...params} label="Supermercado" />} onChange={(event: any, values: any) => { setSuperValue(values) }} value={superValue} />
                         </Grid>
                         <Grid item xs={12} md={12}>
-                            <TextField fullWidth label="Precio unidad" variant="outlined" type="number" value={precioUnidad !== 0 && precioUnidad} onChange={(v: any) => setPrecioUnidad(v.target.value)} />
-                        </Grid>
-                        <Grid item xs={12} md={12}>
                             <TextField fullWidth label="Precio" variant="outlined" type="number" value={precio !== 0 && precio} onChange={(v: any) => setPrecio(v.target.value)} />
                         </Grid>
+                        <Grid item xs={12} md={12}>
+                            <TextField fullWidth label="Precio unidad" variant="outlined" type="number" value={precioUnidad !== 0 && precioUnidad} onChange={(v: any) => setPrecioUnidad(v.target.value)} />
+                        </Grid>
+                        
                         <Grid item xs={12} md={12}>
                             <TextField fullWidth label="Cantidad (indicar gr/ml)" variant="outlined" type="text" value={cantidad} onChange={(v: any) => setCantidad(v.target.value)} />
                         </Grid>

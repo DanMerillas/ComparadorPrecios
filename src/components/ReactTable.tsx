@@ -36,15 +36,16 @@ export function ReactTable(props: { data: any; eventoBorrar: any }) {
             sortable: true,
         },
         {
-            name: 'Precio Unidad',
-            selector: (row: any) => row.PRECIO_UNIDAD,
-            sortable: true,
-        },
-        {
             name: 'Precio',
             selector: (row: any) => row.PRECIO,
             sortable: true,
         },
+        {
+            name: 'Precio Unidad',
+            selector: (row: any) => row.PRECIO_UNIDAD,
+            sortable: true,
+        },
+        
         {
             name: 'Cantidad',
             selector: (row: any) => row.CANTIDAD,
