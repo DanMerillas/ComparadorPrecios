@@ -8,6 +8,7 @@
 .App-header {
   
   padding-top: 50px;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -25,7 +26,7 @@
 }
 
 div.tablaReact{
-  margin: 60px 10px 50px 10px;
+  margin: 20px 10px 50px 10px;
   width: auto;
 }
 
@@ -68,4 +69,8 @@ div.MuiDialogContent-root{
   line-height: 26px;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px 0 rgba(0,0,0,.06);
 
+}
+
+.search{
+  background-color: white;
 }
