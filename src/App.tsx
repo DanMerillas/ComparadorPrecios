@@ -4,11 +4,14 @@ import { NewButtons } from './components/NewButtons';
 import { ReactTable } from './components/ReactTable';
 import { borrarDato, obtenerDatos } from './services/db';
 import { PacmanLoader } from 'react-spinners';
+import NewForm from './components/NewForm';
 
 function App() {
 
   const [data, setData] = useState<any>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [showNewForm, setShowNewForm] = useState<boolean>(false)
+  const [currentRow, setCurrentRow] = useState<any>({})
 
   const obtenerDatosTabla = () => {
     setLoading(true)
@@ -36,6 +39,11 @@ function App() {
 
   }
 
+  const editarPrecio = (row:any)=>{
+    setShowNewForm(true)
+    setCurrentRow(row)
+  }
+
   useEffect(() => {
     obtenerDatosTabla()
   }, [])
@@ -46,7 +54,8 @@ function App() {
         <NewButtons updateTableEvent={obtenerDatosTabla} />
       </header>
       <section className={loading ? 'loadingSection' : ''}>
-        {!loading ? <ReactTable data={data} eventoBorrar={borrarDatos} /> : <PacmanLoader color="#36d7b7" />}
+        {!loading ? <ReactTable data={data} eventoBorrar={borrarDatos} eventoEditar={editarPrecio} /> : <PacmanLoader color="#36d7b7" />}
+        <NewForm visible={showNewForm} setParentVisible={setShowNewForm} type={'PrecioEditar'} updateTableEvent={obtenerDatosTabla} currentRow={currentRow}/>
       </section>
     </div>
   );

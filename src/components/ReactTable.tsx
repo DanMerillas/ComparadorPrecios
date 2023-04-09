@@ -1,12 +1,12 @@
 import { TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import DataTable from 'react-data-table-component';
-import { HiOutlineTrash } from "react-icons/hi";
+import { HiOutlineTrash,HiOutlinePencil } from "react-icons/hi";
 
 
 
 
-export function ReactTable(props: { data: any; eventoBorrar: any }) {
+export function ReactTable(props: { data: any; eventoBorrar: any; eventoEditar:any }) {
     const [filterText1, setFilterText] = useState('');
 
     const [filteredItems, setFilteredItems] = useState(props.data);
@@ -17,8 +17,10 @@ export function ReactTable(props: { data: any; eventoBorrar: any }) {
 
     const columns = [
         {
-            cell: (row: any) => <><HiOutlineTrash className='accion' size={'25px'} title="Editar precio" onClick={() => {
+            cell: (row: any) => <><HiOutlineTrash className='accion' size={'25px'} title="Borrar precio" onClick={() => {
                 props.eventoBorrar(row.id)
+            }} /><HiOutlinePencil className='accion' size={'25px'} title="Editar precio" onClick={() => {
+                props.eventoEditar(row)
             }} /></>,
             allowOverflow: true,
             button: true,

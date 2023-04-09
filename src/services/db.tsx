@@ -33,6 +33,24 @@ export async function guardarDatos(nombreTabla: string, datos:any) {
       return true
 }
 
+export async function editarDatos(nombreTabla: string, datos:any, id:number) {
+    const { DB_URL, DB_KEY } = obternerConfiguracionSupabase();
+    const supabase = createClient(DB_URL, DB_KEY)
+    const { data, error } = await supabase
+    .from(nombreTabla)
+    .update(datos)
+    .eq('id', id)
+
+    if (error) {
+        console.error(error)
+        return false
+      }
+    
+      console.log(data)
+
+      return true
+}
+
 export async function borrarDato(nombreTabla:string, id:number){
     const { DB_URL, DB_KEY } = obternerConfiguracionSupabase();
     const supabase = createClient(DB_URL, DB_KEY)

@@ -1,9 +1,9 @@
 import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
-import { guardarDatos, obtenerDatos } from "../services/db";
+import { editarDatos, guardarDatos, obtenerDatos } from "../services/db";
 
 
-export default function NewForm(props: { visible: boolean; setParentVisible: any; type: string; updateTableEvent:any }) {
+export default function NewForm(props: { visible: boolean; setParentVisible: any; type: string; updateTableEvent:any; currentRow?:any }) {
 
     const [openConfirm, setopenConfirm] = useState<boolean>(props.visible)
     const [superMercados, setSuperMercados] = useState<any>([])
@@ -81,6 +81,33 @@ export default function NewForm(props: { visible: boolean; setParentVisible: any
 
     }
 
+    const editarPrecio = async () => {
+
+        if (productoValue !== "" && superValue !== "") {
+            const datos = [{ PRODUCT_NAME: productoValue, SUPERMERCADO: superValue, PRECIO_UNIDAD: precioUnidad, PRECIO: precio, CANTIDAD: cantidad }]
+            const result = await editarDatos("PreciosSuperMercados", datos, props.currentRow.id)
+
+            if (result) {
+                alert("Precio guardado correctamente")
+                setSuperValue('')
+                setProductoValue('')
+                setCantidad('')
+                setPrecio(0)
+                setPrecioUnidad(0)
+                props.updateTableEvent()
+                accionesCerrarDialog()
+                
+            }
+            else {
+                alert("Se produjo un error")
+            }
+        }
+        else {
+            alert("Faltan campos obligatorios")
+        }
+
+    }
+
     useEffect(() => {
 
         obtenerValoresCombos();
@@ -92,14 +119,28 @@ export default function NewForm(props: { visible: boolean; setParentVisible: any
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.visible])
 
+    useEffect(() => {
+
+        if(props.currentRow){
+            setProductoValue(props.currentRow.PRODUCT_NAME)
+            setSuperValue(props.currentRow.SUPERMERCADO)
+            setPrecio(props.currentRow.PRECIO)
+            setPrecioUnidad(props.currentRow.PRECIO_UNIDAD)
+            setCantidad(props.currentRow.CANTIDAD)
+        }
+            
+
+    }, [props.currentRow])
 
 
     return (props.type === "Super" ?
         dialogoNuevoSuper()
         : props.type === "Producto" ?
             dialogoNuevoProducto()
-            :
+            : props.type === "Precio" ?
             dialogoNuevoPrecio()
+            : props.type === "PrecioEditar" ?
+             dialogoEditarPrecio(): <></>
 
     )
 
@@ -168,6 +209,57 @@ export default function NewForm(props: { visible: boolean; setParentVisible: any
                     Cancelar
                 </Button>
                 <Button onClick={guardarPrecio} color="primary" autoFocus>
+                    Aceptar
+                </Button>
+            </DialogActions>
+        </Dialog>;
+    }
+
+    function dialogoEditarPrecio() {
+
+        return <Dialog
+            className="newFormDialog"
+            open={openConfirm}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+        >
+            <DialogTitle id="alert-dialog-title">
+                Nuevo Precio
+            </DialogTitle>
+            <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                    <Grid className="gridReact" container spacing={2}>
+                        <Grid item xs={12} md={12}>
+                            <Autocomplete disablePortal options={producto} renderInput={(params: any) => <TextField {...params} label="Producto" />} onChange={(event: any, values: any) => { setProductoValue(values) }} value={productoValue} />
+                        </Grid>
+                        <Grid item xs={12} md={12}>
+                            <Autocomplete disablePortal options={superMercados} renderInput={(params: any) => <TextField {...params} label="Supermercado" />} onChange={(event: any, values: any) => { setSuperValue(values) }} value={superValue} />
+                        </Grid>
+                        <Grid item xs={12} md={12}>
+                            <TextField fullWidth label="Precio" variant="outlined" type="number" value={precio !== 0 && precio} onChange={(v: any) => setPrecio(v.target.value)} />
+                        </Grid>
+                        <Grid item xs={12} md={12}>
+                            <TextField fullWidth label="Precio unidad" variant="outlined" type="number" value={precioUnidad !== 0 && precioUnidad} onChange={(v: any) => setPrecioUnidad(v.target.value)} />
+                        </Grid>
+                        
+                        <Grid item xs={12} md={12}>
+                            <TextField fullWidth label="Cantidad (indicar gr/ml)" variant="outlined" type="text" value={cantidad} onChange={(v: any) => setCantidad(v.target.value)} />
+                        </Grid>
+                    </Grid>
+
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button
+                    onClick={() => {
+                        accionesCerrarDialog()
+
+                    }}
+                    color="primary"
+                >
+                    Cancelar
+                </Button>
+                <Button onClick={editarPrecio} color="primary" autoFocus>
                     Aceptar
                 </Button>
             </DialogActions>
